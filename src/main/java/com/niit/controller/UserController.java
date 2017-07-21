@@ -2,6 +2,8 @@ package com.niit.controller;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.niit.dao.UsersDao;
 import com.niit.model.Users;
@@ -23,7 +26,9 @@ public class UserController
     @Autowired
     
     private UsersDao usersDao;
-    @RequestMapping(value="/registration",method=RequestMethod.PUT)
+    
+    @RequestMapping(value="/registration",method=RequestMethod.POST)
+    
     public ResponseEntity<Void> createUser(@RequestBody Users user) {
         System.out.println("Creating User " + user.getFirstname());
  
@@ -33,36 +38,7 @@ public class UserController
         HttpHeaders headers = new HttpHeaders();
         return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
     }
-    
-    
-  
-    
-   /* 
-    public ResponseEntity<Void> registration(@RequestBody Users user)
-    {
-        try
-        {
-            user.setEnabled(true);
-            List<Users> users=usersDao.getAllUsers();
-            //for(T var:collection)
-            for(Users u:users)
-            {
-                if(u.getUsername().equals(user.getUsername()))
-                {
-                    Error error=new Error(2,"Username already exists");
-                    return new ResponseEntity<Error>(error,HttpStatus.INTERNAL_SERVER_ERROR);    
-                }
-            }
-            System.out.println(user.getUsername() + "" + user.getFirstname() + "" + user.getEmail());
-            usersDao.registration(user);
-            return new ResponseEntity<Void>(HttpStatus.CREATED);
-        }
-        catch(Exception e)
-        {
-            Error error=new Error(1,"cannot register user details..");
-            return new ResponseEntity<Error>(error,HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }   */ 
+ 
 
 	@RequestMapping(value="/login",method=RequestMethod.POST)
 	public ResponseEntity<?> login(@RequestBody Users users,HttpSession session)
@@ -99,4 +75,33 @@ public class UserController
 	    session.invalidate();
 	    return new ResponseEntity<Void>(HttpStatus.OK);
 	}
+	
+	@RequestMapping(value="/getuserdetails",method=RequestMethod.GET)
+	public ResponseEntity<?> getUserDetails(HttpSession session)
+	{    
+	    Users users=(Users)session.getAttribute("user");
+	    if(users==null)
+	    {
+	        Error error=new Error(3,"Unauthorized user");
+	        return new ResponseEntity<Error>(error,HttpStatus.UNAUTHORIZED); 
+	    }
+	    users=usersDao.getUserByUsername(users.getId());
+	    return new ResponseEntity<Users>(users,HttpStatus.OK);
+	}
+	
+	@RequestMapping(value="/updateprofile",method=RequestMethod.PUT)
+	public ResponseEntity<?> updateUserProfile(@RequestBody Users user,HttpSession session)
+	{    
+	    Users users=(Users)session.getAttribute("user");
+	    if(users==null)
+	    {
+	        Error error=new Error(3,"Unauthorized user");
+	        return new ResponseEntity<Error>(error,HttpStatus.UNAUTHORIZED); 
+	    }
+	    usersDao.updateUser(user);
+	    session.setAttribute("user", user);
+	    return new ResponseEntity<Void>(HttpStatus.OK);
+	}
+	
+	
 }

@@ -31,11 +31,11 @@ public class Users
 	private String username;
 	
 	private String password;
-	
+
 	private String role;
 	@Column(name="on_line")
 	private boolean online;
-	
+
 	private boolean enabled;
 	public String getFirstname() 
 	{

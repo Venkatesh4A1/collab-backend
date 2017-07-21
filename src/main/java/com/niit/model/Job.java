@@ -17,12 +17,12 @@ public class Job
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private int id;
-	@NotEmpty
+	
 	private String jobTitle;
-	@NotEmpty
+	
 	private String jobDescription;
 	private String yrsOfExp;
-	@NotEmpty
+	
 	private String skillsRequired;
 	private String salary;
 	private Date postedOn;
